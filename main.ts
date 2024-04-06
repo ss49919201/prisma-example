@@ -125,3 +125,21 @@ function upsertTask() {
 // delete
 
 // deleteMany
+
+switch (process.argv[2]) {
+  case "1":
+    updateTask();
+    break;
+  case "2":
+    updateManyTask();
+    break;
+  case "3":
+    upsertTask();
+    break;
+  case "4":
+    updateUserWithTasks();
+    break;
+  default:
+    console.log("no command!");
+    break;
+}
