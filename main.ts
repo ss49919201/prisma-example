@@ -44,11 +44,13 @@ function updateUserWithTasks() {
     name: string;
     tasks: typeof tasks;
   } = {
-    id: 2,
+    id: 1,
     name: "test",
     tasks,
   };
 
+  // 親である user が見つからない場合はエラー
+  // `An operation failed because it depends on one or more records that were required but not found. No 'User' record (needed to update inlined relation on 'Task') was found for a nested upsert on relation 'TaskToUser'.`
   prisma.user
     .update({
       where: {
@@ -68,6 +70,9 @@ function updateUserWithTasks() {
               status: task.status,
             },
           })),
+          // prisma:query SELECT `prisma_example`.`tasks`.`id`, `prisma_example`.`tasks`.`userId` FROM `prisma_example`.`tasks` WHERE ((`prisma_example`.`tasks`.`id` NOT IN (?,?,?) AND `prisma_example`.`tasks`.`userId` = ?) AND `prisma_example`.`tasks`.`userId` IN (?))
+          // 上記のクエリが実行され、レコードが見つかった場合は下記のクエリが実行される
+          // prisma:query DELETE FROM `prisma_example`.`tasks` WHERE (`prisma_example`.`tasks`.`id` IN (?) AND 1=1)
           deleteMany: {
             id: { notIn: tasks.map((task) => task.id) },
             userId: user.id,
