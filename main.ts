@@ -10,9 +10,9 @@ const prisma = new PrismaClient({
 // 1 つ以上レコードが見つからない場合はエラー
 
 // BEGIN
-// SELECT `express-prisma-example`.`Task`.`id` FROM `express-prisma-example`.`Task` WHERE (`express-prisma-example`.`Task`.`id` = ? AND 1=1)
-// UPDATE `express-prisma-example`.`Task` SET `status` = ? WHERE (`express-prisma-example`.`Task`.`id` IN (?) AND (`express-prisma-example`.`Task`.`id` = ? AND 1=1))
-// SELECT `express-prisma-example`.`Task`.`id`, `express-prisma-example`.`Task`.`userId`, `express-prisma-example`.`Task`.`status`, `express-prisma-example`.`Task`.`deadlineAt`, `express-prisma-example`.`Task`.`created_at`, `express-prisma-example`.`Task`.`updated_at` FROM `express-prisma-example`.`Task` WHERE `express-prisma-example`.`Task`.`id` = ? LIMIT ? OFFSET ?
+// SELECT `prisma_example`.`tasks`.`id` FROM `prisma_example`.`tasks` WHERE (`prisma_example`.`tasks`.`id` = ? AND 1=1)
+// UPDATE `prisma_example`.`tasks` SET `status` = ? WHERE (`prisma_example`.`tasks`.`id` IN (?) AND (`prisma_example`.`tasks`.`id` = ? AND 1=1))
+// SELECT `prisma_example`.`tasks`.`id`, `prisma_example`.`tasks`.`userId`, `prisma_example`.`tasks`.`status`, `prisma_example`.`tasks`.`deadlineAt`, `prisma_example`.`tasks`.`created_at`, `prisma_example`.`tasks`.`updated_at` FROM `prisma_example`.`tasks` WHERE `prisma_example`.`tasks`.`id` = ? LIMIT ? OFFSET ?
 // COMMIT
 
 function updateTask() {
