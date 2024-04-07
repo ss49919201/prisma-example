@@ -152,6 +152,24 @@ function deleteUser() {
 
 // deleteMany
 
+// get lock
+function getLock() {
+  prisma.$queryRaw<{ lock: bigint }[]>`SELECT GET_LOCK('lock', 1) AS 'lock'`
+    .then((result) => {
+      console.log(result[0].lock);
+
+      return prisma.$queryRaw<
+        { release_lock: bigint }[]
+      >`SELECT RELEASE_LOCK('lock') AS 'release_lock'`;
+    })
+    .then((result) => {
+      console.log(result[0].release_lock);
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
+
 switch (process.argv[2]) {
   case "1":
     updateTask();
@@ -170,6 +188,9 @@ switch (process.argv[2]) {
     break;
   case "6":
     deleteUser();
+    break;
+  case "7":
+    getLock();
     break;
   default:
     console.log("no command!");
