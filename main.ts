@@ -123,6 +123,32 @@ function upsertTask() {
 }
 
 // delete
+// 1 レコードの削除
+// where にはユニークなキー(複合キーでもOK)を一つ以上指定する
+// 1 つ以上レコードが見つからない場合はエラー
+function deleteTask() {
+  prisma.task
+    .delete({
+      where: {
+        id: 2,
+      },
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
+// 子テーブルに関連レコードがある場合はエラー
+function deleteUser() {
+  prisma.user
+    .delete({
+      where: {
+        id: 1,
+      },
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
 
 // deleteMany
 
@@ -138,6 +164,12 @@ switch (process.argv[2]) {
     break;
   case "4":
     updateUserWithTasks();
+    break;
+  case "5":
+    deleteTask();
+    break;
+  case "6":
+    deleteUser();
     break;
   default:
     console.log("no command!");
