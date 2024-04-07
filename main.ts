@@ -1,4 +1,4 @@
-import { Task, PrismaClient } from "@prisma/client";
+import { Task, PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient({
   log: ["query"],
@@ -170,6 +170,17 @@ function getLock() {
     });
 }
 
+// select for update
+function selectForUpdateNowait() {
+  prisma.$queryRaw<User>`SELECT * FROM users WHERE id = 1 FOR UPDATE NOWAIT`
+    .then((result) => {
+      console.log(result);
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
+
 switch (process.argv[2]) {
   case "1":
     updateTask();
@@ -192,7 +203,9 @@ switch (process.argv[2]) {
   case "7":
     getLock();
     break;
+  case "8":
+    selectForUpdateNowait();
+    break;
   default:
     console.log("no command!");
-    break;
 }
