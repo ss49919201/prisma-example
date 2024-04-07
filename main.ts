@@ -1,4 +1,5 @@
 import { Task, PrismaClient, User } from "@prisma/client";
+import { rejects } from "assert";
 
 const prisma = new PrismaClient({
   log: ["query"],
@@ -157,6 +158,10 @@ function getLock() {
   prisma.$queryRaw<{ lock: bigint }[]>`SELECT GET_LOCK('lock', 1) AS 'lock'`
     .then((result) => {
       console.log(result[0].lock);
+
+      if (result[0].lock === BigInt(0)) {
+        throw new Error("lock failed");
+      }
 
       return prisma.$queryRaw<
         { release_lock: bigint }[]
