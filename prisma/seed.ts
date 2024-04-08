@@ -8,7 +8,7 @@ async function main() {
   await prisma.user.create({
     data: {
       name: "Alice",
-      email: "example.com",
+      email: `example+${new Date().getTime()}.com`,
       tasks: {
         create: {
           status: "TODO",
