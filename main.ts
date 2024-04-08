@@ -86,6 +86,47 @@ function updateUserWithTasks() {
     });
 }
 
+// BEGIN
+// SELECT `prisma_example`.`users`.`id` FROM `prisma_example`.`users` WHERE (`prisma_example`.`users`.`id` = ? AND 1=1)
+// UPDATE `prisma_example`.`users` SET `name` = ? WHERE (`prisma_example`.`users`.`id` IN (?) AND (`prisma_example`.`users`.`id` = ? AND 1=1))
+// SELECT `prisma_example`.`tasks`.`id`, `prisma_example`.`tasks`.`userId` FROM `prisma_example`.`tasks` WHERE (1=1 AND `prisma_example`.`tasks`.`userId` IN (?))
+// DELETE FROM `prisma_example`.`tasks` WHERE (`prisma_example`.`tasks`.`id` IN (?,?,?) AND 1=1)
+// INSERT INTO `prisma_example`.`tasks` (`id`,`userId`,`status`,`created_at`,`updated_at`) VALUES (?,?,?,?,?)
+// INSERT INTO `prisma_example`.`tasks` (`id`,`userId`,`status`,`created_at`,`updated_at`) VALUES (?,?,?,?,?)
+// INSERT INTO `prisma_example`.`tasks` (`id`,`userId`,`status`,`created_at`,`updated_at`) VALUES (?,?,?,?,?)
+// SELECT `prisma_example`.`users`.`id`, `prisma_example`.`users`.`email`, `prisma_example`.`users`.`name` FROM `prisma_example`.`users` WHERE `prisma_example`.`users`.`id` = ? LIMIT ? OFFSET ?
+// COMMIT
+function updateUserAndPutTasks() {
+  const user: {
+    id: number;
+    name: string;
+    tasks: {
+      status: "TODO" | "DONE" | "IN_PROGRESS";
+    }[];
+  } = {
+    id: 1,
+    name: "test",
+    tasks: [{ status: "TODO" }, { status: "DONE" }, { status: "IN_PROGRESS" }],
+  };
+
+  prisma.user
+    .update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        name: "test",
+        tasks: {
+          deleteMany: {},
+          create: user.tasks,
+        },
+      },
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
+
 // updateMany
 // 複数のレコードを同じ値に更新
 // where には任意の条件を指定する
@@ -210,6 +251,9 @@ switch (process.argv[2]) {
     break;
   case "8":
     selectForUpdateNowait();
+    break;
+  case "9":
+    updateUserAndPutTasks();
     break;
   default:
     console.log("no command!");
