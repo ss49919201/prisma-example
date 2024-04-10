@@ -115,12 +115,46 @@ function updateUserAndPutTasks() {
         id: user.id,
       },
       data: {
-        name: "test",
         tasks: {
           deleteMany: {},
           create: user.tasks,
         },
       },
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
+
+function updateTaskAndPutTaskConfig() {
+  const task: {
+    id: number;
+    status: "TODO" | "DONE" | "IN_PROGRESS";
+  } = {
+    id: 48,
+    status: "TODO",
+  };
+
+  prisma
+    .$transaction(async (tx) => {
+      await tx.taskConfig.deleteMany({
+        where: {
+          taskId: task.id,
+        },
+      });
+
+      await tx.task.update({
+        where: {
+          id: task.id,
+        },
+        data: {
+          taskConfig: {
+            create: {
+              config: "test",
+            },
+          },
+        },
+      });
     })
     .catch((e) => {
       console.error(e);
@@ -254,6 +288,9 @@ switch (process.argv[2]) {
     break;
   case "9":
     updateUserAndPutTasks();
+    break;
+  case "10":
+    updateTaskAndPutTaskConfig();
     break;
   default:
     console.log("no command!");

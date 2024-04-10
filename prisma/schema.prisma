@@ -17,13 +17,14 @@ model User {
 }
 
 model Task {
-  id         Int        @id @default(autoincrement())
-  user       User       @relation(fields: [userId], references: [id])
+  id         Int         @id @default(autoincrement())
+  user       User        @relation(fields: [userId], references: [id])
   userId     Int
   status     TaskStatus
   deadlineAt DateTime?
-  created_at DateTime   @default(now())
-  updated_at DateTime   @default(now())
+  created_at DateTime    @default(now())
+  updated_at DateTime    @default(now())
+  taskConfig TaskConfig?
 
   @@map("tasks")
 }
@@ -32,4 +33,15 @@ enum TaskStatus {
   TODO
   IN_PROGRESS
   DONE
+}
+
+model TaskConfig {
+  id         Int      @id @default(autoincrement())
+  task       Task     @relation(fields: [taskId], references: [id])
+  taskId     Int      @unique
+  config     String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  @@map("task_configs")
 }
