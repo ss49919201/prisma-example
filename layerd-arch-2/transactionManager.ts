@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
 export type TransactionClient = {
-  prismaTransaction: Prisma.TransactionClient;
+  readonly prismaTransaction: Prisma.TransactionClient;
 };
 
 export class TransactionMng {
