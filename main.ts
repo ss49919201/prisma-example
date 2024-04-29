@@ -1,4 +1,4 @@
-import { Task, PrismaClient, User } from "@prisma/client";
+import { Task, PrismaClient, User, Prisma } from "@prisma/client";
 import { rejects } from "assert";
 
 const prisma = new PrismaClient({
@@ -180,6 +180,82 @@ function updateManyTask() {
     });
 }
 
+// deleteMany and updateMany in transaction
+function updateManyTaskAndPutTaskConfig() {
+  const data = [
+    {
+      taskId: 10,
+      user:
+        {
+          name: "test",
+        } || null,
+      taskConfig:
+        {
+          config: "test",
+        } || undefined,
+    },
+    {
+      taskId: 11,
+      user:
+        {
+          name: "test2",
+        } || null,
+      taskConfig:
+        {
+          config: "test",
+        } || undefined,
+    },
+  ];
+
+  prisma
+    .$transaction(
+      data.flatMap((d) => {
+        const callbackFunctions = [];
+        if (!d.taskConfig) {
+          callbackFunctions.push(
+            prisma.taskConfig.deleteMany({
+              where: {
+                taskId: d.taskId,
+              },
+            })
+          );
+        }
+        callbackFunctions.push(
+          prisma.task.update({
+            where: {
+              id: d.taskId,
+            },
+            data: {
+              user: {
+                update: d.user,
+              },
+              taskConfig: d.taskConfig
+                ? {
+                    upsert: {
+                      where: {
+                        taskId: d.taskId,
+                      },
+                      update: d.taskConfig,
+                      create: d.taskConfig,
+                    },
+                  }
+                : undefined,
+            },
+          })
+        );
+        return callbackFunctions;
+      })
+    )
+    .then((res) => {
+      res.forEach((r) => {
+        console.log(r);
+      });
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
+
 // upsert
 // where にはユニークなキー(複合キーでもOK)を一つ以上指定する
 function upsertTask() {
@@ -291,6 +367,9 @@ switch (process.argv[2]) {
     break;
   case "10":
     updateTaskAndPutTaskConfig();
+    break;
+  case "11":
+    updateManyTaskAndPutTaskConfig();
     break;
   default:
     console.log("no command!");
