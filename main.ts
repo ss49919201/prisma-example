@@ -256,6 +256,76 @@ function updateManyTaskAndPutTaskConfig() {
     });
 }
 
+// deleteMany and updateMany in transaction
+function updateManyTaskAndPutTaskConfig2() {
+  const data = [
+    {
+      taskId: 10,
+      user:
+        {
+          name: "test",
+        } || null,
+      taskConfig:
+        {
+          config: "test",
+        } || undefined,
+    },
+    {
+      taskId: 11,
+      user:
+        {
+          name: "test2",
+        } || null,
+      taskConfig:
+        {
+          config: "test",
+        } || undefined,
+    },
+  ];
+
+  prisma
+    .$transaction(async (tx) => {
+      return Promise.all(
+        data.map(async (d) => {
+          if (!d.taskConfig) {
+            await tx.taskConfig.deleteMany({
+              where: {
+                taskId: d.taskId,
+              },
+            });
+          }
+
+          return tx.task.update({
+            where: {
+              id: d.taskId,
+            },
+            data: {
+              user: {
+                update: d.user,
+              },
+              taskConfig: d.taskConfig
+                ? {
+                    upsert: {
+                      where: {
+                        taskId: d.taskId,
+                      },
+                      update: d.taskConfig,
+                      create: d.taskConfig,
+                    },
+                  }
+                : undefined,
+            },
+          });
+        })
+      );
+    })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
 // upsert
 // where にはユニークなキー(複合キーでもOK)を一つ以上指定する
 function upsertTask() {
@@ -370,6 +440,9 @@ switch (process.argv[2]) {
     break;
   case "11":
     updateManyTaskAndPutTaskConfig();
+    break;
+  case "12":
+    updateManyTaskAndPutTaskConfig2();
     break;
   default:
     console.log("no command!");
