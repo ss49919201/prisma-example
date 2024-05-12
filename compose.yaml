@@ -1,5 +1,6 @@
 volumes:
   db:
+  db-reader:
 
 services:
   db:
@@ -15,3 +16,16 @@ services:
         target: /var/lib/mysql
     ports:
       - 127.0.0.1:3306:3306
+  db-reader:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: prisma-example
+      TZ: Asia/Tokyo
+    command: mysqld
+    volumes:
+      - type: volume
+        source: db-reader
+        target: /var/lib/mysql
+    ports:
+      - 127.0.0.1:3307:3306
