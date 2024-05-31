@@ -1,5 +1,4 @@
-import { Task, PrismaClient, User, Prisma } from "@prisma/client";
-import { rejects } from "assert";
+import { PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient({
   log: ["query"],
@@ -407,6 +406,36 @@ function selectForUpdateNowait() {
     });
 }
 
+// cf. https://github.com/prisma/prisma/discussions/2772
+// TaskConfig を持つ Task を1件以上持つ User を検索する
+function selectUserWithTaskWithTaskConfig() {
+  prisma.user
+    .findMany({
+      include: {
+        tasks: {
+          include: {
+            taskConfig: true,
+          },
+        },
+      },
+      where: {
+        tasks: {
+          some: {
+            taskConfig: {
+              isNot: null,
+            },
+          },
+        },
+      },
+    })
+    .then((result) => {
+      console.log(result);
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
+
 switch (process.argv[2]) {
   case "1":
     updateTask();
@@ -443,6 +472,9 @@ switch (process.argv[2]) {
     break;
   case "12":
     updateManyTaskAndPutTaskConfig2();
+    break;
+  case "13":
+    selectUserWithTaskWithTaskConfig();
     break;
   default:
     console.log("no command!");
